@@ -131,8 +131,10 @@
   body {
     @apply bg-background text-foreground;
   }
+  /* Smooth jumps to #sections, landing below the sticky header (taller on
+     phones, where the nav links wrap to a second row). */
   html {
-    @apply font-sans;
+    @apply font-sans scroll-pt-24 motion-safe:scroll-smooth md:scroll-pt-18;
   }
   h1,
   h2,

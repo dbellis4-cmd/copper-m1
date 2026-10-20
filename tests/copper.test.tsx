@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { Logo } from "@/components/copper/logo";
 import { SiteFooter } from "@/components/copper/site-footer";
@@ -23,6 +23,22 @@ describe("Brand components", () => {
     expect(
       screen.getByRole("button", { name: "Change theme" }),
     ).toBeInTheDocument();
+  });
+
+  it("SiteHeader links to the Products, Copper Plus and Privacy sections", () => {
+    render(<SiteHeader />);
+    const nav = screen.getByRole("navigation", { name: "Main" });
+    expect(within(nav).getByRole("link", { name: "Products" })).toHaveAttribute(
+      "href",
+      "#products",
+    );
+    expect(
+      within(nav).getByRole("link", { name: "Copper Plus" }),
+    ).toHaveAttribute("href", "#plus");
+    expect(within(nav).getByRole("link", { name: "Privacy" })).toHaveAttribute(
+      "href",
+      "#privacy",
+    );
   });
 
   it("SiteFooter shows the fictional-use label", () => {
