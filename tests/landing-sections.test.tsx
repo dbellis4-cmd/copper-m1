@@ -1,0 +1,57 @@
+import { cleanup, render, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { formatUsd, getProducts } from "@/lib/copper/catalog";
+
+// Imports the section fresh, so a catalog mock set up before it applies.
+async function renderProducts() {
+  vi.resetModules();
+  const { ProductsSection } =
+    await import("@/components/copper/products-section");
+  return render(<ProductsSection />);
+}
+
+afterEach(() => {
+  cleanup();
+  vi.doUnmock("@/lib/copper/catalog");
+});
+
+describe("ProductsSection", () => {
+  it("shows a card per product with its name, price, finishes and features", async () => {
+    const { container } = await renderProducts();
+    for (const product of getProducts()) {
+      const card = container.querySelector<HTMLElement>(
+        `[data-testid="product-card"][data-product="${product.id}"]`,
+      );
+      expect(card, product.id).not.toBeNull();
+      const text = card!.textContent ?? "";
+      expect(text).toContain(product.name);
+      expect(text).toContain(formatUsd(product.priceUsd));
+      for (const color of product.colors) expect(text).toContain(color);
+      expect(product.features).toHaveLength(3);
+      for (const feature of product.features) {
+        expect(text).toContain(feature.name);
+        expect(text).toContain(feature.description);
+      }
+      expect(within(card!).getByRole("img").getAttribute("alt")).toContain(
+        product.name,
+      );
+    }
+  });
+
+  it("follows the catalog when a price changes", async () => {
+    vi.doMock("@/lib/copper/catalog", async (importOriginal) => {
+      const actual =
+        await importOriginal<typeof import("@/lib/copper/catalog")>();
+      return {
+        ...actual,
+        getProducts: () =>
+          actual.getProducts().map((p) => ({ ...p, priceUsd: p.priceUsd + 1 })),
+      };
+    });
+    const { container } = await renderProducts();
+    for (const product of getProducts()) {
+      expect(container.textContent).toContain(formatUsd(product.priceUsd + 1));
+      expect(container.textContent).not.toContain(formatUsd(product.priceUsd));
+    }
+  });
+});
