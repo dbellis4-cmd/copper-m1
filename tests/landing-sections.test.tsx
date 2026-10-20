@@ -5,6 +5,7 @@ import {
   formatNotesHours,
   formatUsd,
   getPlans,
+  getPrivacySummary,
   getProducts,
 } from "@/lib/copper/catalog";
 
@@ -136,5 +137,20 @@ describe("PlusPricingSection", () => {
     expect(text).toContain("$95/year");
     expect(text).toContain("save $18.88 a year");
     expect(text).not.toContain("$7.99");
+  });
+});
+
+describe("PrivacySection", () => {
+  it("shows the current policy and every catalog privacy point", async () => {
+    const { PrivacySection } =
+      await import("@/components/copper/privacy-section");
+    const { container } = render(<PrivacySection />);
+    const privacy = getPrivacySummary();
+    const text = container.textContent ?? "";
+    expect(text).toContain(`${privacy.policy} privacy policy`);
+    for (const point of privacy.points) expect(text).toContain(point);
+    expect(text).not.toMatch(/never\s+record/i);
+    const mascot = within(container).getByRole("img");
+    expect(mascot.getAttribute("alt")).toMatch(/robot/i);
   });
 });

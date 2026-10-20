@@ -47,4 +47,20 @@ describe("Brand components", () => {
       "Fictional — for educational use.",
     );
   });
+
+  it("SiteFooter has its test id and the on-dark logo", () => {
+    render(<SiteFooter />);
+    const footer = screen.getByRole("contentinfo");
+    expect(footer).toHaveAttribute("data-testid", "site-footer");
+    const logos = within(footer).getAllByAltText("Copper State Labs");
+    expect(logos).toHaveLength(1);
+    expect(logos[0].getAttribute("src")).toMatch(/logo-dark\.png/);
+  });
+
+  it("Logo onDark shows only the Desert Sand version", () => {
+    render(<Logo onDark />);
+    const images = screen.getAllByAltText("Copper State Labs");
+    expect(images).toHaveLength(1);
+    expect(images[0].getAttribute("src")).toMatch(/logo-dark\.png/);
+  });
 });
