@@ -55,3 +55,26 @@ describe("ProductsSection", () => {
     }
   });
 });
+
+describe("ShowcaseSection", () => {
+  it("shows every catalog lifestyle photo with a caption and descriptive alt text", async () => {
+    const { ShowcaseSection } =
+      await import("@/components/copper/showcase-section");
+    const { container } = render(<ShowcaseSection />);
+    const figures = [...container.querySelectorAll("figure")];
+    const photos = getProducts().flatMap((p) =>
+      p.lifestyle.map((src) => ({ src, name: p.name })),
+    );
+    expect(figures).toHaveLength(photos.length);
+    for (const [i, photo] of photos.entries()) {
+      const img = within(figures[i]).getByRole("img");
+      expect(img.getAttribute("src")).toContain(encodeURIComponent(photo.src));
+      const alt = img.getAttribute("alt") ?? "";
+      expect(alt).toContain(photo.name);
+      expect(alt).not.toMatch(/\.png|^image$/i);
+      const caption = figures[i].querySelector("figcaption")?.textContent ?? "";
+      expect(caption).toContain(photo.name);
+      expect(caption).not.toMatch(/never\s+record/i);
+    }
+  });
+});
