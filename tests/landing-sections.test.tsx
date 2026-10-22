@@ -154,3 +154,20 @@ describe("PrivacySection", () => {
     expect(mascot.getAttribute("alt")).toMatch(/robot/i);
   });
 });
+
+describe("ReviewsSection", () => {
+  it("shows a labeled 5-star sample review with no prices typed in", async () => {
+    const { ReviewsSection } =
+      await import("@/components/copper/reviews-section");
+    const { container } = render(<ReviewsSection />);
+    const section = within(container);
+    expect(section.getByRole("img", { name: "Rated 5 out of 5 stars" }));
+    expect(section.getByText("Sample review")).toBeInTheDocument();
+    const text = container.textContent ?? "";
+    expect(text).toContain("Monsoon Mode");
+    expect(text).toContain("Rosa M.");
+    expect(text).toContain("Copper Home owner");
+    expect(text).not.toMatch(/\$\d/);
+    expect(text).not.toMatch(/never\s+record/i);
+  });
+});
